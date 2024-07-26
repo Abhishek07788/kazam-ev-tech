@@ -1,0 +1,179 @@
+.App {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.note-app {
+  width: 90%;
+  max-width: 450px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.icon {
+  font-size: 30px;
+  margin-right: 10px;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.input-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.input-container input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+.AddBtn {
+  border: none;
+  border-radius: 4px;
+  background-color: #a0522d;
+  color: white;
+  cursor: pointer;
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  padding: 0px 12px;
+}
+
+.AddBtn > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.AddBtn > div > span:first-child {
+  background: #ffffff;
+  border-radius: 50%;
+  color: #93400f;
+  font-size: 12px;
+  width: 14px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  text-align: left;
+  margin-top: 2px;
+  margin-left: 2px;
+}
+
+.input-container button:hover {
+  background-color: #8b4513;
+}
+
+.notes-section {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.notes-section h3 {
+  padding-bottom: 4px;
+  border-bottom: 2px solid #e4e9e9;
+  font-weight: bold;
+}
+
+.list-items {
+  margin-top: -17px;
+  height: 240px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.list-items > p {
+  padding: 0px 2px 4px 2px;
+  border-bottom: 1.5px solid #cccfcf;
+}
+
+/* Custom scrollbar */
+.list-items::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-items::-webkit-scrollbar-thumb {
+  background-color: #d677378f;
+  border-radius: 4px;
+}
+
+.list-items::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .note-app {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .notes-section {
+    margin-top: 10px;
+  }
+
+  .list-items {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .note-app {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .input-container input {
+    padding: 8px;
+  }
+
+  .AddBtn {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .list-items {
+    height: 150px;
+  }
+}
