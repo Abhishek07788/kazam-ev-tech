@@ -6,15 +6,17 @@ import taskRoutes from "./routes/todo.routes";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
+import { getTasksFromRedis, setTasksInRedis } from "./config/redisClient";
+import { moveTasksToMongoDB } from "./routes/todo.routes";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api", taskRoutes);
+app.use("/fetchAllTasks", taskRoutes);
 
-// Default Route
 app.use("/", (req, res) => {
   res.status(200).json("Hello from Server!");
 });
@@ -33,8 +35,13 @@ export const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  socket.on("add-note", (note) => {
+  socket.on("add", async (note) => {
+    const tasks = await getTasksFromRedis();
+    console.log("tasks: ", tasks);
+    tasks.push(note);
+    await setTasksInRedis(tasks);
     io.emit("get-note", note);
+    await moveTasksToMongoDB();
   });
 
   socket.on("disconnect", () => {
@@ -42,7 +49,12 @@ io.on("connection", (socket) => {
   });
 });
 
+// Start Server
 httpServer.listen(PORT, async () => {
-  await dbConnection();
-  console.log(`Server started on http://localhost:${PORT}`);
+  try {
+    await dbConnection();
+    console.log(`Server started on http://localhost:${PORT}`);
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+  }
 });

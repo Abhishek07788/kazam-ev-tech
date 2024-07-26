@@ -1,33 +1,39 @@
 import express from "express";
+import { flushTasksFromRedis, getTasksFromRedis } from "../config/redisClient";
 import Todo from "../schema/todo.schema";
+
 const app = express.Router();
 
-app.get("/fetchAllTasks", async (req, res) => {
+// Fetch all tasks
+app.get("/", async (req, res) => {
   try {
-    const todos = await Todo.find({});
-    res.status(200).send(todos);
+    const redisTodo = await getTasksFromRedis();
+    if (redisTodo.length < 1) {
+      const todo = await Todo.find({});
+      res.status(200).send(todo);
+    } else {
+      res.status(200).send(redisTodo);
+    }
   } catch (e) {
     res.status(500).send(e);
   }
 });
 
-app.post("/add", async (req, res) => {
+// Function to move tasks from Redis to MongoDB
+export const moveTasksToMongoDB = async () => {
+  const tasks = await getTasksFromRedis();
   try {
-    const { title } = req.body;
-    if (!title) {
-      return res
-        .status(200)
-        .send({ status: false, message: "Title is required" });
+    if (tasks.length > 50) {
+      const formattedTasks = tasks.map((task: any) => ({
+        title: task.title,
+      }));
+      await Todo.insertMany(formattedTasks);
+      await flushTasksFromRedis();
+      console.log("Tasks moved to MongoDB and deleted from Redis.");
     }
-    const newTodo = new Todo({ title });
-    await newTodo.save();
-    const todos = await Todo.find({});
-    res
-      .status(200)
-      .send({ status: true, message: "Task Added!", todos: todos });
-  } catch (e) {
-    res.status(500).send(e);
+  } catch (err) {
+    console.error("Error moving tasks to MongoDB:", err);
   }
-});
+};
 
 export default app;

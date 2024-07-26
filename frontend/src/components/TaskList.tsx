@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import { addTask, getTask, Socket } from "../api/api";
+import { getTask, Socket } from "../api/api";
 
 interface Task {
   _id: string;
@@ -41,17 +41,8 @@ const TaskList: React.FC = () => {
       return;
     }
     let id = new Date().toISOString();
-    const newTask = { _id: id, title: note };
-    Socket.emit("add-note", newTask);
-    addTask(note)
-      .then((res) => {
-        if (res.status) {
-          setNote("");
-        }
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    Socket.emit("add", { _id: id, title: note });
+    setNote("");
   };
 
   return (
