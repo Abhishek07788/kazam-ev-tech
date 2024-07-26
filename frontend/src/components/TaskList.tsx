@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import { addTask, getTask } from "../api/api";
+import { addTask, getTask, Socket } from "../api/api";
 
 interface Task {
   _id: string;
@@ -14,12 +14,23 @@ const TaskList: React.FC = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    Socket.on("get-note", (res) => {
+      setTasks((prev) => [...prev, res]);
+    });
+    return () => {
+      Socket.off("get-note");
+    };
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
     getTask()
       .then((res) => {
         setTasks(res);
+        setLoading(false);
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
         setLoading(false);
       });
   }, []);
@@ -29,18 +40,17 @@ const TaskList: React.FC = () => {
       setError("Input is required!");
       return;
     }
-    setLoading(true);
+    let id = new Date().toISOString();
+    const newTask = { _id: id, title: note };
+    Socket.emit("add-note", newTask);
     addTask(note)
       .then((res) => {
-        setLoading(false);
-        setTasks(res.todos);
         if (res.status) {
           setNote("");
         }
       })
       .catch((e) => {
-        console.log(e);
-        setLoading(false);
+        console.error(e);
       });
   };
 
@@ -61,25 +71,24 @@ const TaskList: React.FC = () => {
           type="text"
           placeholder="New Note..."
         />
-
         <div className="AddBtn" onClick={handleAdd}>
-          {loading ? (
-            "loading.."
-          ) : (
-            <div>
-              <span>+</span>
-              <span>Add</span>
-            </div>
-          )}
+          <span>+</span>
+          <span>Add</span>
         </div>
       </div>
       {error && <p className="error">{error}</p>}
       <div className="notes-section">
         <h3>Notes</h3>
         <div className="list-items">
-          {tasks.map((task) => (
-            <TaskItem key={task._id} content={task.title} />
-          ))}
+          {loading ? (
+            <h4>Loading...</h4>
+          ) : (
+            <>
+              {tasks.map((task) => (
+                <TaskItem key={task._id} content={task.title} />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

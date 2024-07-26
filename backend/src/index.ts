@@ -9,31 +9,36 @@ import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-app.use(cors());
 
+app.use(cors());
+app.use(express.json());
+app.use("/api", taskRoutes);
+
+// Default Route
+app.use("/", (req, res) => {
+  res.status(200).json("Hello from Server!");
+});
+
+// Create HTTP Server
 const httpServer = createServer(app);
 
+// Socket.IO Configuration
 export const io = new Server(httpServer, {
   cors: {
     origin: "*",
   },
 });
 
-app.use(express.json());
-app.use("/api", taskRoutes);
-
-app.use("/", (req, res) => {
-  res.status(200).json("Hello from Server!");
-});
-
+// Socket.IO Connection
 io.on("connection", (socket) => {
-  console.log("A user Connected", socket.id);
+  console.log("A user connected:", socket.id);
 
   socket.on("add-note", (note) => {
-    socket.emit("get-note", note);
+    io.emit("get-note", note);
   });
+
   socket.on("disconnect", () => {
-    console.log("User Disconnected!");
+    console.log("User disconnected!");
   });
 });
 
